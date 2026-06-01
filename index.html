@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeu ramauki</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #1f1f1f;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      width: min(90vw, 700px);
+      text-align: center;
+      background: #2d2d2d;
+      padding: 24px;
+      border-radius: 18px;
+      box-shadow: 0 0 30px rgba(0, 0, 0, 0.4);
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+    }
+
+    .counter {
+      margin-bottom: 16px;
+      opacity: 0.85;
+    }
+
+    img {
+      max-width: 100%;
+      height: 360px;
+      object-fit: contain;
+      background: #111;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.1s, opacity 0.1s;
+    }
+
+    button:hover {
+      transform: scale(1.04);
+    }
+
+    .choice {
+      background: #f0d36a;
+      color: #1f1f1f;
+    }
+
+    .restart {
+      background: #7dd3fc;
+      color: #111;
+      margin-top: 20px;
+    }
+
+    .feedback {
+      min-height: 28px;
+      font-size: 1.2rem;
+      margin-bottom: 12px;
+      font-weight: bold;
+    }
+
+    .final-score {
+      font-size: 1.6rem;
+      margin: 24px 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Poupée de Ramauk ou Balai ancien ?</h1>
+    <div id="game"></div>
+  </main>
+
+  <script>
+    const questions = [
+      { image: "images/poupee1.jpg", answer: "poupee", alt: "Poupée de Ramauk" },
+      { image: "images/balai1.jpg", answer: "balai", alt: "Balai ancien" },
+      { image: "images/poupee2.jpg", answer: "poupee", alt: "Poupée de Ramauk" },
+      { image: "images/balai2.jpg", answer: "balai", alt: "Balai ancien" },
+      { image: "images/poupee3.jpg", answer: "poupee", alt: "Poupée de Ramauk" },
+      { image: "images/balai3.jpg", answer: "balai", alt: "Balai ancien" },
+      { image: "images/poupee4.jpg", answer: "poupee", alt: "Poupée de Ramauk" },
+      { image: "images/balai4.jpg", answer: "balai", alt: "Balai ancien" },
+      { image: "images/poupee5.jpg", answer: "poupee", alt: "Poupée de Ramauk" },
+      { image: "images/balai5.jpg", answer: "balai", alt: "Balai ancien" }
+    ];
+
+    let currentIndex = 0;
+    let score = 0;
+    let locked = false;
+
+    const game = document.getElementById("game");
+
+    function renderQuestion() {
+      const question = questions[currentIndex];
+
+      game.innerHTML = `
+        <div class="counter">Image ${currentIndex + 1} / ${questions.length} — Score : ${score}</div>
+        <div id="feedback" class="feedback"></div>
+        <img src="${question.image}" alt="${question.alt}" />
+        <div class="buttons">
+          <button class="choice" onclick="answer('poupee')">Poupée de Ramauk</button>
+          <button class="choice" onclick="answer('balai')">Balai ancien</button>
+        </div>
+      `;
+    }
+
+    function answer(choice) {
+      if (locked) return;
+      locked = true;
+
+      const question = questions[currentIndex];
+      const feedback = document.getElementById("feedback");
+
+      if (choice === question.answer) {
+        score++;
+        feedback.textContent = "Correct.";
+      } else {
+        feedback.textContent = "Raté.";
+      }
+
+      setTimeout(() => {
+        currentIndex++;
+        locked = false;
+
+        if (currentIndex < questions.length) {
+          renderQuestion();
+        } else {
+          renderResult();
+        }
+      }, 700);
+    }
+
+    function renderResult() {
+      let message = "";
+
+      if (score === 10) message = "Expert certifié en objets douteux.";
+      else if (score >= 7) message = "Très solide. Tu connais tes vieilleries.";
+      else if (score >= 4) message = "Moyen. Le balai te manipule.";
+      else message = "Échec critique. La poupée de Ramauk te juge.";
+
+      game.innerHTML = `
+        <div class="final-score">Score final : ${score} / ${questions.length}</div>
+        <p>${message}</p>
+        <button class="restart" onclick="restartGame()">Rejouer</button>
+      `;
+    }
+
+    function restartGame() {
+      currentIndex = 0;
+      score = 0;
+      locked = false;
+      shuffle(questions);
+      renderQuestion();
+    }
+
+    function shuffle(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    shuffle(questions);
+    renderQuestion();
+  </script>
+</body>
+</html>
